@@ -15,3 +15,15 @@ add_executable(fe
 
 # Include directories for headers
 target_include_directories(fe PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Add backend subdirectory
+add_subdirectory(backend)
+
+# Option to build tests
+option(BUILD_TESTS "Build the test executables" ON)
+
+if(BUILD_TESTS)
+    # Add test executable
+    add_executable(win_x86_backend_test tests/win_x86_backend_test.c)
+    target_include_directories(win_x86_backend_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
