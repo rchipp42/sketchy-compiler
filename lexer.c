@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include "error.h"
 #include "lexer.h"
 
 // this is the lexer / tokeniser
@@ -38,7 +39,7 @@ static char *get_ident(void)
     buffer[pos] = '\0';
 
     char *result = malloc(pos + 1);
-    if (!result) exit(1);
+    if (!result) error(ET_MEMORY);
     strcpy(result, buffer);
 
     skip_space();
@@ -59,7 +60,7 @@ static char *get_number(void)
     buffer[pos] = '\0';
 
     char *result = malloc(pos + 1);
-    if (!result) exit(1);
+    if (!result) error(ET_MEMORY);
     strcpy(result, buffer);
 
     skip_space();
@@ -69,7 +70,7 @@ static char *get_number(void)
 Token *next_token(void)
 {
     Token *ret_val = malloc(sizeof(Token));
-    if (!ret_val) exit(1);
+    if (!ret_val) error(ET_MEMORY);
 
     ret_val->text = NULL;
 
@@ -92,7 +93,7 @@ Token *next_token(void)
     // Semicolon
     else if (look == ';') {
         ret_val->text = malloc(2);
-        if (!ret_val->text) exit(1);
+        if (!ret_val->text) error(ET_MEMORY);
         ret_val->text[0] = look;
         ret_val->text[1] = '\0';
 
@@ -103,7 +104,7 @@ Token *next_token(void)
     // Unknown character
     else {
         ret_val->text = malloc(2);
-        if (!ret_val->text) exit(1);
+        if (!ret_val->text) error(ET_MEMORY);
         ret_val->text[0] = look;
         ret_val->text[1] = '\0';
 
