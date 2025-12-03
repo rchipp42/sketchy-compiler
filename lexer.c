@@ -1,116 +1,144 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 #include "error.h"
 #include "lexer.h"
 
-// this is the lexer / tokeniser
+// Lexer configuration
+#define BUFFER_SIZE 4096
+#define TOKEN_TEXT_SIZE 256
 
-static char look;
+// Tokenizer state
+static char input_buf[BUFFER_SIZE];
+static size_t buf_pos = 0;
+static size_t buf_len = 0;
+static int look; 
 
-static void next_char(void)
-{
-	look = getchar();
+// optimised ASCII checks
+static inline int is_alpha(int c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
-static void skip_space(void)
-{
-	while(isspace(look)) next_char();
+static inline int is_digit(int c) {
+    return (c >= '0' && c <= '9');
 }
 
-void lexer_init(void)
-{
-	next_char();
-	skip_space();
+static inline int is_alnum(int c) {
+    return is_alpha(c) || is_digit(c);
 }
 
-static char *get_ident(void)
-{
-    char buffer[256];
+static inline int is_space(int c) {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+// Buffered input
+static void next_char(void) {
+    if (buf_pos >= buf_len) {
+        buf_len = fread(input_buf, 1, BUFFER_SIZE, stdin);
+        buf_pos = 0;
+        if (buf_len == 0) {
+            look = EOF;
+            return;
+        }
+    }
+    //  Cast to unsigned char. 
+    // Without this, byte 0xFF (255) becomes -1 (EOF) on signed char systems.
+    look = (unsigned char)input_buf[buf_pos++];
+}
+
+// Skip whitespace
+static void skip_space(void) {
+    while (is_space(look)) next_char();
+}
+
+// Lexer init
+void lexer_init(void) {
+    buf_pos = buf_len = 0;
+    next_char();
+    // Pre-skip spaces 
+    skip_space();
+}
+
+// Get identifier or keyword
+static char *get_ident(void) {
+    char buffer[TOKEN_TEXT_SIZE];
     int pos = 0;
 
-    // while name characters
-    while (isalpha(look) || isdigit(look) || look == '_') {
-        buffer[pos++] = (char)look;
+    // this loop prevents buffer overflow
+    while (is_alnum(look) || look == '_') {
+        if (pos < TOKEN_TEXT_SIZE - 1) {
+            buffer[pos++] = (char)look;
+        }
         next_char();
     }
+    buffer[pos] = '\0';
 
+    // Allocate exact size
+    char *result = malloc(pos + 1);
+    if (!result) error(ET_MEMORY);
+    memcpy(result, buffer, pos + 1);
+
+    // return 
+    return result;
+}
+
+// Get number
+static char *get_number(void) {
+    char buffer[TOKEN_TEXT_SIZE];
+    int pos = 0;
+
+    // this loop prevents buffer overflow
+    while (is_digit(look)) {
+        if (pos < TOKEN_TEXT_SIZE - 1) {
+            buffer[pos++] = (char)look;
+        }
+        next_char();
+    }
     buffer[pos] = '\0';
 
     char *result = malloc(pos + 1);
     if (!result) error(ET_MEMORY);
-    strcpy(result, buffer);
+    memcpy(result, buffer, pos + 1);
 
-    skip_space();
+   
     return result;
 }
 
-static char *get_number(void)
-{
-    char buffer[256];
-    int pos = 0;
-
-    // while number characters
-    while (isdigit(look)) {
-        buffer[pos++] = (char)look;
-        next_char();
-    }
-
-    buffer[pos] = '\0';
-
-    char *result = malloc(pos + 1);
-    if (!result) error(ET_MEMORY);
-    strcpy(result, buffer);
-
+// Generate next token
+Token *next_token(void) {
+    
     skip_space();
-    return result;
-}
 
-Token *next_token(void)
-{
     Token *ret_val = malloc(sizeof(Token));
     if (!ret_val) error(ET_MEMORY);
-
     ret_val->text = NULL;
 
-    // EOF check
     if (look == EOF) {
         ret_val->type = TT_EOF;
         return ret_val;
     }
 
-    // Identifier
-    if (isalpha(look)) {
+   // Identifier or keyword
+    if (is_alpha(look) || look == '_') {
         ret_val->text = get_ident();
         ret_val->type = TT_IDENT;
     }
-    // Number
-    else if (isdigit(look)) {
+    else if (is_digit(look)) {
         ret_val->text = get_number();
         ret_val->type = TT_NUMBER;
     }
-    // Semicolon
-    else if (look == ';') {
-        ret_val->text = malloc(2);
-        if (!ret_val->text) error(ET_MEMORY);
-        ret_val->text[0] = look;
-        ret_val->text[1] = '\0';
-
-        ret_val->type = TT_SEMICOLON;
-        next_char();  // consume semicolon
-        skip_space();
-    }
-    // Unknown character
     else {
+        // Single-character token
         ret_val->text = malloc(2);
         if (!ret_val->text) error(ET_MEMORY);
-        ret_val->text[0] = look;
+        ret_val->text[0] = (char)look;
         ret_val->text[1] = '\0';
 
-        ret_val->type = TT_UNKNOWN;
-        next_char();  // consume it
-        skip_space();
+        switch (look) {
+            case ';': ret_val->type = TT_SEMICOLON; break;
+            default:  ret_val->type = TT_UNKNOWN; break;
+        }
+        next_char();
     }
 
     return ret_val;
