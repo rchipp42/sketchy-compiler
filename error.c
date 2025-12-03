@@ -5,7 +5,7 @@
 void error(ErrorType type)
 {
 	switch (type) {
-	case ET_MEMORY
+	case ET_MEMORY:
 		printf("FATAL MEMORY ERROR!\n");
 		exit(1);
 	}
