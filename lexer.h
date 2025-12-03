@@ -7,10 +7,10 @@ typedef enum {
     TT_SEMICOLON,
     TT_EOF,
     TT_UNKNOWN  // unknown/unexpected character
-} TokenType;
+} Token_Type;
 
 typedef struct {
-    TokenType type; // type of token
+    Token_Type type; // type of token
     char *text;     // allocated string for IDENT/NUMBER or single-character token
 } Token; // Token structure
 
