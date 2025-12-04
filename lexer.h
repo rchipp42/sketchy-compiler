@@ -2,16 +2,16 @@
 #define LEXER_H
 
 typedef enum {
-    TT_IDENT,
-    TT_NUMBER,
-    TT_SEMICOLON,
-    TT_EOF,
-    TT_UNKNOWN  // unknown/unexpected character
+	TT_IDENT,
+	TT_NUMBER,
+	TT_SEMICOLON,
+	TT_EOF,
+	TT_UNKNOWN  // unknown/unexpected character
 } Token_Type;
 
 typedef struct {
-    Token_Type type; // type of token
-    char *text;     // allocated string for IDENT/NUMBER or single-character token
+	Token_Type type; // type of token
+	char *text;	 // allocated string for IDENT/NUMBER or single-character token
 } Token; // Token structure
 
 void lexer_init(void);

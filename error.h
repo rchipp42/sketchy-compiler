@@ -2,7 +2,7 @@
 #define ERROR_H
 
 typedef enum {
-    ET_MEMORY
+	ET_MEMORY
 } ErrorType;
 
 // Declare the error function

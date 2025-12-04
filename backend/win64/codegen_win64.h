@@ -1,4 +1,4 @@
 #include "bc.h"
 #include <stdio.h>
 
-void codegen_emit(FILE* out, Instruction* instr);
+void codegen_emit(FILE *out, Instruction *instr);

@@ -8,9 +8,9 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Add executable
 add_executable(fe
-    fe.c
-    lexer.c
-    error.c
+	fe.c
+	lexer.c
+	error.c
 )
 
 # Include directories for headers
@@ -23,7 +23,7 @@ add_subdirectory(backend)
 option(BUILD_TESTS "Build the test executables" ON)
 
 if(BUILD_TESTS)
-    # Add test executable
-    add_executable(win_x86_backend_test tests/win_x86_backend_test.c)
-    target_include_directories(win_x86_backend_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+	# Add test executable
+	add_executable(win_x86_backend_test tests/win_x86_backend_test.c)
+	target_include_directories(win_x86_backend_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
