@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -I. -Ibackend -std=c99
 
-all: fe aot test_backend
+all: fe aot win_x86_backend_test
 
 fe: fe.o lexer.o error.o
 	$(CC) -o fe fe.o lexer.o error.o
@@ -9,8 +9,8 @@ fe: fe.o lexer.o error.o
 aot: backend/bc_reader.o backend/regalloc.o backend/util.o backend/win64/main.o backend/win64/codegen_win64.o backend/win64/emitter.o
 	$(CC) -o aot backend/bc_reader.o backend/regalloc.o backend/util.o backend/win64/main.o backend/win64/codegen_win64.o backend/win64/emitter.o
 
-test_backend: tests/test_backend.o
-	$(CC) -o test_backend tests/test_backend.o
+win_x86_backend_test: tests/win_x86_backend_test.o
+	$(CC) -o win_x86_backend_test tests/win_x86_backend_test.o
 
 fe.o: fe.c lexer.h
 	$(CC) -c fe.c $(CFLAGS)
@@ -39,9 +39,9 @@ backend/win64/codegen_win64.o: backend/win64/codegen_win64.c backend/win64/codeg
 backend/win64/emitter.o: backend/win64/emitter.c backend/win64/emitter.h
 	$(CC) -c backend/win64/emitter.c -o backend/win64/emitter.o $(CFLAGS)
 
-tests/test_backend.o: tests/test_backend.c
-	$(CC) -c tests/test_backend.c -o tests/test_backend.o $(CFLAGS)
+tests/win_x86_backend_test.o: tests/win_x86_backend_test.c
+	$(CC) -c tests/win_x86_backend_test.c -o tests/win_x86_backend_test.o $(CFLAGS)
 
 .PHONY: clean
 clean:
-	rm -f *.o */*.o */*/*.o fe aot test_backend
+	rm -f *.o */*.o */*/*.o fe aot win_x86_backend_test
