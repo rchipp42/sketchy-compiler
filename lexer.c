@@ -91,7 +91,8 @@ static char *get_ident(void)
 }
 
 // Get number
-static char *get_number(void) {
+static char *get_number(void)
+{
 	char buffer[TOKEN_TEXT_SIZE];
 	int pos = 0;
 
